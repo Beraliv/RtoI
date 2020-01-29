@@ -6,27 +6,50 @@
  */
 export const squareAsSumOfSquares = (n: number): number[] | null => {
   const squareAsSumOfSquaresWithIndex = (rest: number, index: number, currentResult = []) => {
-    if (index < 0) {
-      return null;
+    let repeat = true;
+    let saved = [];
+
+    while (repeat) {
+      repeat = false;
+
+      if (index < 0) {
+        if (saved.length > 0) {
+          const lastSaved = saved.pop();
+          rest = lastSaved.rest;
+          currentResult = lastSaved.currentResult;
+          index = lastSaved.index;
+
+          repeat = true;
+          continue;
+        }
+
+        return null;
+      }
+
+      if (index * index > rest) {
+        index = index - 1;
+        repeat = true;
+        continue;
+      }
+
+
+      if (index * index === rest) {
+        return [index, ...currentResult];
+      }
+
+      // index * index < rest
+
+      saved.push({
+        rest,
+        index: index - 1,
+        currentResult,
+      });
+
+      rest = rest - index * index;
+      currentResult = [index, ...currentResult];
+      index = index - 1;
+      repeat = true;
     }
-
-    if (index * index > rest) {
-      return squareAsSumOfSquaresWithIndex(rest, index - 1, currentResult);
-    }
-
-
-    if (index * index === rest) {
-      return [index, ...currentResult];
-    }
-
-    // index * index < rest
-
-    const localAnswer = squareAsSumOfSquaresWithIndex(rest - index * index, index - 1, [index, ...currentResult]);
-    if (localAnswer === null) {
-      return squareAsSumOfSquaresWithIndex(rest, index - 1, currentResult);         
-    }
-
-    return localAnswer;
   }
 
   return squareAsSumOfSquaresWithIndex(n * n, n - 1);
